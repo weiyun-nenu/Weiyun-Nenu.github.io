@@ -1,1057 +1,614 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>东北师范大学学院网站</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
-        rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
-        }
-
-        :root {
-            --primary-dark: #003366;
-            --primary-medium: #0056a6;
-            --primary-light: #0077B6;
-            --secondary-blue: #4a90e2;
-            --light-bg: #f5f8fa;
-            --gray-border: #e0e6ed;
-            --text-dark: #333;
-            --text-medium: #666;
-            --text-light: #999;
-            --white: #fff;
-            --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        body {
-            background-color: var(--light-bg);
-            color: var(--text-dark);
-            line-height: 1.6;
-        }
-
-        /* 顶部导航栏 */
-        .header {
-            background-color: var(--white);
-            color: var(--text-dark);
-            padding: 0 5%;
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-        }
-
-        .logo {
-            height: 50px;
-            margin-right: 15px;
-        }
-
-        .site-name {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--primary-dark);
-        }
-
-        .nav-menu {
-            display: flex;
-            list-style: none;
-        }
-
-        .nav-menu li {
-            margin: 0 15px;
-            position: relative;
-        }
-
-        .nav-menu a {
-            color: var(--text-dark);
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: 500;
-            padding: 8px 5px;
-            display: block;
-            transition: all 0.3s;
-        }
-
-        .nav-menu a:hover,
-        .nav-menu a.active {
-            color: var(--primary-light);
-        }
-
-        .nav-menu a::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 3px;
-            background: var(--primary-light);
-            transition: width 0.3s;
-        }
-
-        .nav-menu a:hover::after,
-        .nav-menu a.active::after {
-            width: 100%;
-        }
-
-        /* 下拉菜单样式 */
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background-color: var(--white);
-            min-width: 200px;
-            box-shadow: var(--shadow);
-            border-radius: 4px;
-            padding: 10px 0;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 100;
-        }
-
-        .nav-menu li:hover .dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .dropdown-menu a {
-            color: var(--text-dark);
-            padding: 10px 20px;
-            text-decoration: none;
-            display: block;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-
-        .dropdown-menu a:hover {
-            background-color: #f5f5f5;
-            color: var(--primary-light);
-        }
-
-        .dropdown-menu i {
-            width: 20px;
-            text-align: center;
-            margin-right: 8px;
-            color: var(--primary-light);
-        }
-
-        /* Banner区域 */
-        .banner {
-            background: linear-gradient(rgba(0, 51, 102, 0.8), rgba(0, 87, 166, 0.8)),
-                url('https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80');
-            background-size: cover;
-            background-position: center;
-            height: 360px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--white);
-            text-align: center;
-            position: relative;
-        }
-
-        .banner-content {
-            max-width: 800px;
-            padding: 0 20px;
-        }
-
-        .banner h1 {
-            font-size: 36px;
-            margin-bottom: 20px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .banner p {
-            font-size: 18px;
-            margin-bottom: 30px;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        }
-
-        .banner-btn {
-            background-color: var(--primary-light);
-            color: var(--white);
-            padding: 12px 28px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 600;
-            display: inline-block;
-            transition: all 0.3s;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .banner-btn:hover {
-            background-color: #0066a0;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
-        }
-
-        /* 学院简介 */
-        .intro-section {
-            padding: 60px 5%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 40px;
-            position: relative;
-        }
-
-        .section-title h2 {
-            font-size: 32px;
-            color: var(--primary-dark);
-            display: inline-block;
-            padding-bottom: 15px;
-        }
-
-        .section-title h2::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background: var(--primary-light);
-            border-radius: 2px;
-        }
-
-        .intro-content {
-            display: flex;
-            gap: 40px;
-            align-items: center;
-        }
-
-        .intro-text {
-            flex: 1;
-        }
-
-        .intro-text p {
-            margin-bottom: 20px;
-            line-height: 1.8;
-        }
-
-        .intro-image {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            height: 360px;
-        }
-
-        .slideshow-container {
-            position: relative;
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-        }
-
-        .slides {
-            position: relative;
-            height: 100%;
-            width: 100%;
-        }
-
-        .slide {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-            background-size: cover;
-            background-position: center;
-        }
-
-        .slide.active {
-            opacity: 1;
-            z-index: 2;
-        }
-
-        .slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        /* 轮播控制按钮 */
-        .slider-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 10;
-            background-color: rgba(255, 255, 255, 0.7);
-            color: var(--primary-dark);
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            font-size: 18px;
-        }
-
-        .slider-nav:hover {
-            background-color: var(--primary-light);
-            color: white;
-        }
-
-        .prev-btn {
-            left: 15px;
-        }
-
-        .next-btn {
-            right: 15px;
-        }
-
-        /* 指示点 */
-        .dots-container {
-            position: absolute;
-            bottom: 15px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            z-index: 10;
-        }
-
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.5);
-            margin: 0 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .dot.active {
-            background-color: var(--primary-light);
-        }
-
-        .dot:hover {
-            background-color: var(--secondary-blue);
-        }
-
-        /* 新增：信息板块样式 */
-        .info-section {
-            padding: 60px 5%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .info-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-        }
-
-        .info-card {
-            background: var(--white);
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .info-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
-        }
-
-        .card-header {
-            background: var(--primary-medium);
-            color: white;
-            padding: 15px 20px;
-            font-size: 18px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-        }
-
-        .card-header i {
-            margin-right: 10px;
-            font-size: 20px;
-        }
-
-        .card-body {
-            padding: 20px;
-        }
-
-        .info-list {
-            list-style: none;
-        }
-
-        .info-list li {
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
-            transition: all 0.3s;
-        }
-
-        .info-list li:last-child {
-            border-bottom: none;
-        }
-
-        .info-list li:hover {
-            background-color: rgba(74, 144, 226, 0.05);
-        }
-
-        .info-list a {
-            display: flex;
-            justify-content: space-between;
-            color: var(--text-dark);
-            text-decoration: none;
-            font-size: 15px;
-            transition: color 0.3s;
-        }
-
-        .info-list a:hover {
-            color: var(--primary-light);
-        }
-
-        .info-date {
-            color: var(--text-light);
-            font-size: 13px;
-            margin-left: 10px;
-            white-space: nowrap;
-        }
-
-        .view-more {
-            display: block;
-            text-align: center;
-            padding: 15px;
-            background-color: #f8f9fa;
-            color: var(--primary-medium);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .view-more:hover {
-            background-color: #e9ecef;
-            color: var(--primary-dark);
-        }
-
-        .view-more i {
-            margin-left: 5px;
-            font-size: 12px;
-        }
-
-        /* 页脚 */
-        .footer {
-            background-color: var(--primary-dark);
-            color: var(--white);
-            padding: 50px 5% 20px;
-        }
-
-        .footer-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-            margin-bottom: 30px;
-        }
-
-        .footer-section h3 {
-            font-size: 18px;
-            margin-bottom: 20px;
-            position: relative;
-            padding-bottom: 10px;
-        }
-
-        .footer-section h3::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 40px;
-            height: 3px;
-            background: var(--primary-light);
-        }
-
-        .footer-links {
-            list-style: none;
-        }
-
-        .footer-links li {
-            margin-bottom: 12px;
-        }
-
-        .footer-links a {
-            color: #d1e0ff;
-            text-decoration: none;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-        }
-
-        .footer-links a i {
-            margin-right: 8px;
-            font-size: 14px;
-        }
-
-        .footer-links a:hover {
-            color: #ffd700;
-            padding-left: 5px;
-        }
-
-        .contact-info p {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .contact-info i {
-            margin-right: 12px;
-            width: 20px;
-            text-align: center;
-        }
-
-        .copyright {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: #a3b8d3;
-            font-size: 14px;
-        }
-
-        /* 响应式设计 */
-        @media (max-width: 992px) {
-            .intro-content {
-                flex-direction: column;
-            }
-
-            .banner h1 {
-                font-size: 28px;
-            }
-
-            .banner p {
-                font-size: 16px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .top-bar {
-                flex-direction: column;
-                padding: 15px 0;
-            }
-
-            .nav-menu {
-                margin-top: 15px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            .nav-menu li {
-                margin: 5px 10px;
-            }
-
-            .banner {
-                height: 300px;
-            }
-
-            .info-cards {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .section-title h2 {
-                font-size: 26px;
-            }
-
-            .nav-menu {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .nav-menu li {
-                margin: 8px 0;
-            }
-
-            .intro-image {
-                height: 280px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>微云的博客</title>
+  <style>
+    @font-face {
+      font-family: 'MyFont';
+      src: url('./fonts/小楷.ttf') format('truetype');
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #769ae4;
+      --primary-light: rgba(118, 154, 228, 0.2);
+      --primary-dark: #5a7bc4;
+      --text-color: #e8f0ff;
+      --text-secondary: #b8cdf8;
+      --bg-overlay: rgba(10, 15, 30, 0.6); /* 降低遮罩层不透明度 */
+      --card-bg: rgba(255, 255, 255, 0.08);
+      --border-color: rgba(118, 154, 228, 0.25);
+      --shadow: 0 10px 40px rgba(0, 15, 40, 0.3);
+      --transition: all 0.3s ease;
+    }
+
+    html {
+      font-size: 14px;
+    }
+
+    body {
+      min-height: 100vh;
+      line-height: 1.6;
+      color: var(--text-color);
+      font-family: 'MyFont', -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      display: flex;
+      overflow-x: hidden;
+      background-image: url('./背景.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      position: relative;
+    }
+
+    /* 调整遮罩层，让背景更明显 */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        135deg, 
+        rgba(10, 20, 50, 0.65) 0%, 
+        rgba(15, 25, 60, 0.55) 50%,
+        rgba(20, 30, 70, 0.5) 100%
+      );
+      backdrop-filter: blur(0px); /* 移除遮罩层的模糊 */
+      z-index: -1;
+    }
+
+    /* 添加一个深色渐变层来增强背景 */
+    body::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(
+        circle at 20% 50%,
+        rgba(10, 25, 60, 0.4) 0%,
+        rgba(5, 15, 40, 0.7) 100%
+      );
+      z-index: -2;
+    }
+
+    /* --- 侧边栏 --- */
+    .sidebar {
+      width: 240px; /* 稍微加宽 */
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      padding: 2.8rem 1.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+      flex-shrink: 0;
+      background: linear-gradient(
+        180deg, 
+        rgba(20, 30, 70, 0.5) 0%, 
+        rgba(15, 25, 60, 0.4) 100%
+      );
+      backdrop-filter: blur(8px); /* 减少模糊强度 */
+      border-right: 1px solid var(--border-color);
+      box-shadow: 2px 0 25px rgba(0, 10, 30, 0.3);
+      z-index: 10;
+      overflow-y: auto;
+      border-radius: 0 20px 20px 0;
+    }
+
+    .blog-title {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--text-color);
+      text-shadow: 
+        0 0 25px rgba(118, 154, 228, 0.6),
+        0 0 50px rgba(118, 154, 228, 0.3);
+      margin-bottom: 0.5rem;
+      padding-bottom: 1.2rem;
+      border-bottom: 1px solid var(--border-color);
+      position: relative;
+      letter-spacing: 1px;
+    }
+
+    .blog-title::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 80px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary-color), transparent);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    .section-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-color);
+      margin-bottom: 1rem;
+      padding-left: 0.8rem;
+      border-left: 3px solid var(--primary-color);
+      background: rgba(118, 154, 228, 0.1);
+      padding: 0.5rem 0.8rem;
+      border-radius: 4px;
+      opacity: 0.95;
+    }
+
+    .link-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .link-list a {
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 1rem;
+      transition: var(--transition);
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid transparent;
+    }
+
+    .link-list a:hover {
+      color: var(--text-color);
+      background: var(--primary-light);
+      border-color: var(--border-color);
+      transform: translateX(8px);
+      box-shadow: 0 5px 20px rgba(118, 154, 228, 0.2);
+    }
+
+    .link-list a::before {
+      content: '→';
+      font-size: 1rem;
+      opacity: 0.7;
+      transition: var(--transition);
+    }
+
+    .link-list a:hover::before {
+      opacity: 1;
+      transform: translateX(3px);
+    }
+
+    .recent-note {
+      display: flex;
+      flex-direction: column;
+      padding: 0.8rem 1rem;
+      border-radius: 8px;
+      transition: var(--transition);
+      border: 1px solid rgba(118, 154, 228, 0.1);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .recent-note:hover {
+      background: rgba(118, 154, 228, 0.15);
+      border-color: var(--border-color);
+      transform: translateX(8px);
+      box-shadow: 0 5px 20px rgba(118, 154, 228, 0.15);
+    }
+
+    .recent-note span {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.3rem;
+      opacity: 0.8;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.9rem 1.2rem 0.9rem 3rem;
+      font-size: 0.95rem;
+      color: var(--text-color);
+      outline: none;
+      transition: var(--transition);
+      backdrop-filter: blur(5px);
+    }
+
+    .search-input::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+
+    .search-input:focus {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--primary-color);
+      box-shadow: 
+        0 0 0 3px rgba(118, 154, 228, 0.15),
+        0 5px 25px rgba(118, 154, 228, 0.2);
+    }
+
+    .search-box::before {
+      content: '🔍';
+      position: absolute;
+      left: 1.2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.7;
+      font-size: 1rem;
+      z-index: 1;
+    }
+
+    /* --- 右侧内容区 --- */
+    .main-wrapper {
+      flex: 1;
+      padding: 3rem 4rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      position: relative;
+    }
+
+    /* 添加背景透过效果 */
+    .main-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: inherit;
+      background-image: inherit;
+      background-size: cover;
+      background-position: center;
+      filter: blur(2px) brightness(1.1);
+      opacity: 0.15;
+      z-index: -1;
+    }
+
+    .content-card {
+      max-width: 900px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(12px);
+      padding: 3.5rem;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      box-shadow: 
+        var(--shadow),
+        inset 0 0 100px rgba(118, 154, 228, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .content-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        135deg,
+        transparent 0%,
+        rgba(118, 154, 228, 0.03) 100%
+      );
+      pointer-events: none;
+    }
+
+    .content-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 100%;
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        var(--primary-color),
+        transparent
+      );
+      opacity: 0.6;
+    }
+
+    .header {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--text-color);
+      text-shadow: 
+        0 2px 10px rgba(0, 0, 0, 0.3),
+        0 0 30px rgba(118, 154, 228, 0.3);
+      line-height: 1.3;
+    }
+
+    blockquote {
+      margin: 2rem 0;
+      padding: 2rem 2.5rem;
+      border-left: 4px solid var(--primary-color);
+      background: rgba(118, 154, 228, 0.08);
+      border-radius: 12px;
+      font-style: italic;
+      position: relative;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(118, 154, 228, 0.1);
+    }
+
+    blockquote::before {
+      content: '"';
+      position: absolute;
+      top: -15px;
+      left: 20px;
+      font-size: 4rem;
+      color: var(--primary-color);
+      opacity: 0.2;
+      font-family: serif;
+    }
+
+    blockquote p {
+      font-size: 1.15rem;
+      line-height: 1.8;
+      color: var(--text-color);
+      position: relative;
+      z-index: 1;
+    }
+
+    .content h3 {
+      font-size: 1.5rem;
+      margin: 2.5rem 0 1.2rem;
+      color: var(--text-color);
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid var(--border-color);
+      text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .content p {
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
+      color: var(--text-color);
+      line-height: 1.9;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .content ul {
+      margin: 2rem 0 2.5rem 2.5rem;
+    }
+
+    .content li {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      padding-left: 1rem;
+      position: relative;
+      line-height: 1.8;
+    }
+
+    .content li::before {
+      content: '✦';
+      position: absolute;
+      left: -1.5rem;
+      color: var(--primary-color);
+      font-size: 1.1rem;
+      text-shadow: 0 0 10px rgba(118, 154, 228, 0.5);
+    }
+
+    .note {
+      font-size: 1rem;
+      padding: 1.5rem 2rem;
+      background: rgba(118, 154, 228, 0.1);
+      border-radius: 12px;
+      border-left: 4px solid var(--primary-color);
+      margin: 2.5rem 0;
+      color: var(--text-secondary);
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(118, 154, 228, 0.15);
+    }
+
+    /* 动画效果 */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0); }
+      50% { transform: translateY(-15px) rotate(0.5deg); }
+    }
+
+    @keyframes shimmer {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .sidebar { 
+      animation: fadeIn 1s ease-out; 
+    }
+    
+    .content-card { 
+      animation: fadeIn 1s ease-out 0.3s backwards; 
+    }
+
+    .blog-title {
+      animation: float 8s ease-in-out infinite;
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 1200px) {
+      .sidebar { width: 220px; }
+      .main-wrapper { padding: 3rem; }
+    }
+
+    @media (max-width: 1024px) {
+      html { font-size: 13px; }
+      .sidebar { width: 200px; padding: 2rem 1.5rem; }
+      .main-wrapper { padding: 2.5rem; }
+      .content-card { padding: 3rem; }
+    }
+
+    @media (max-width: 768px) {
+      body { 
+        flex-direction: column; 
+        background-attachment: scroll;
+      }
+      .sidebar { 
+        width: 100%; 
+        height: auto; 
+        padding: 1.8rem; 
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 0 0 20px 20px;
+      }
+      .main-wrapper { 
+        padding: 2rem; 
+      }
+      .main-wrapper::before {
+        opacity: 0.1;
+      }
+      .content-card { 
+        padding: 2.5rem; 
+        border-radius: 16px;
+      }
+      h1 { font-size: 2rem; }
+    }
+
+    @media (max-width: 480px) {
+      html { font-size: 12px; }
+      .sidebar { padding: 1.5rem; }
+      .main-wrapper { padding: 1.5rem; }
+      .content-card { padding: 2rem; }
+      h1 { font-size: 1.8rem; }
+      blockquote { padding: 1.5rem; }
+    }
+
+    /* 滚动条美化 */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(
+        to bottom,
+        var(--primary-color),
+        var(--primary-dark)
+      );
+      border-radius: 5px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(
+        to bottom,
+        var(--primary-light),
+        var(--primary-color)
+      );
+    }
+  </style>
 </head>
-
 <body>
-    <!-- 顶部导航栏 -->
-    <header class="header">
-        <div class="top-bar">
-            <div class="logo-container">
-                <img src="https://ist.nenu.edu.cn/images/dbsfNew1.png" alt="东北师范大学" class="logo">
-                <div class="site-name"></div>
-            </div>
 
-            <ul class="nav-menu">
-                <li><a href="#" class="active">首页</a></li>
+  <aside class="sidebar">
+    <div class="blog-title">微云的博客</div>
 
-                <li>
-                    <a href="https://ist.nenu.edu.cn/xygk/xyjj.htm">学院概况 <i class="fas fa-angle-down"></i></a>
-                    <div class="dropdown-menu">
-                        <a href="https://ist.nenu.edu.cn/xygk/xyjj.htm"><i class=></i> 学院简介</a>
-                        <a href="https://ist.nenu.edu.cn/xygk/yzzc.htm"><i class=></i> 院长致辞</a>
-                        <a href="https://ist.nenu.edu.cn/xygk/xyld.htm"><i class=></i> 学院领导</a>
-                        <a href="https://ist.nenu.edu.cn/xygk/jswyh.htm"><i class=></i> 教授委员会</a>
-                        <a href="https://ist.nenu.edu.cn/xygk/jwwyh.htm"><i class=></i> 教务委员会</a>
-                        <a href="https://ist.nenu.edu.cn/xygk/xwpdfwyh.htm"><i class=></i> 学位评定分委员会</a>
-                    </div>
-                </li>
-                <li>
-                    <a href="https://ist.nenu.edu.cn/jgsz/jsjkxx.htm">机构设置 <i class="fas fa-angle-down"></i></a>
-                    <div class="dropdown-menu">
-                        <a href="https://ist.nenu.edu.cn/jgsz/jsjkxx.htm"><i class=></i> 计算机科学系</a>
-                        <a href="https://ist.nenu.edu.cn/jgsz/jyjsx.htm"><i class=></i> 教育技术系</a>
-                        <a href="https://ist.nenu.edu.cn/jgsz/xxglx.htm"><i class=></i> 信息管理系</a>
-                        <a href="https://ist.nenu.edu.cn/jgsz/znkxyjsx.htm"><i class=></i> 智能科学与技术系</a>
-                        <a href="http://jszx.nenu.edu.cn/"><i class=></i> 计算机教研中心</a>
-                    </div>
-                </li>
-                <li>
-                    <a href="https://ist.nenu.edu.cn/dqgz/dwjs.htm">党群工作 <i class="fas fa-angle-down"></i></a>
-                    <div class="dropdown-menu">
-                        <a href="https://ist.nenu.edu.cn/dqgz/dwjs.htm"><i class=></i> 党委介绍</a>
-                        <a href="https://ist.nenu.edu.cn/dqgz/jgsz.htm"><i class=></i> 机构设置</a>
-                        <a href="https://ist.nenu.edu.cn/dqgz/gzzd1.htm"><i class=></i> 规章制度</a>
-                        <a href="https://ist.nenu.edu.cn/dqgz/xxyd.htm"><i class=></i> 学习园地</a>
-                        <a href="https://ist.nenu.edu.cn/dqgz/dqhd.htm"><i class=></i> 党群活动</a>
-                    </div>
-                </li>
+    <div class="nav-section">
+      <span class="section-title">点进去会有好玩的系列</span>
+      <ul class="link-list">
+        <li>
+          <a href="https://www.notion.so/2b1e4ae984ab80448119eb92cf982213?source=copy_link" class="recent-note">
+            微云在长春的美食合集
+            <span>最后一次更新：</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="recent-note">
+            随手拍的好看的风景
+            <span>最后一次更新：</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="recent-note">
+            随时会断更的日记
+            <span>最后一次更新：</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="recent-note">
+            那些我最好的朋友们
+            <span>最后一次更新：</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="recent-note">
+            notion
+            <span>2025/12/12</span>
+          </a>
+        </li>
+      </ul>
+    </div>
 
-                <li>
-                    <a href="https://ist.nenu.edu.cn/jzyg/szdw.htm">教职员工 <i class="fas fa-angle-down"></i></a>
-                    <div class="dropdown-menu">
-                        <a href="https://ist.nenu.edu.cn/jzyg/szdw.htm"><i class=></i> 师资队伍</a>
-                        <a href="https://ist.nenu.edu.cn/jzyg/xzgl.htm"><i class=></i> 行政管理</a>
-                        <a href="https://ist.nenu.edu.cn/jzyg/grtx.htm"><i class=></i> 光荣退休</a>
-                    </div>
-                </li>
+    <div class="note">
+      <p><strong>我的联系方式</strong></p>
+      <p style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.9;">
+        qq：241971669，邮箱也是他喽
+      </p>
+    </div>
+  </aside>
 
-                <li>
-                    <a href="https://ist.nenu.edu.cn/bksjy/zysz.htm">本科生教育 <i class="fas fa-angle-down"></i></a>
-                    <div class="dropdown-menu">
-                        <a href="https://ist.nenu.edu.cn/bksjy/zysz.htm"><i class=></i> 专业设置</a>
-                        <a href="https://ist.nenu.edu.cn/bksjy/kcjh.htm"><i class=></i> 课程设计</a>
-                        <a href="https://ist.nenu.edu.cn/bksjy/kcms.htm"><i class=></i> 课程描述</a>
-                        <a href="https://ist.nenu.edu.cn/bksjy/jxkb.htm"><i class=></i> 教学课表</a>
-                        <a href="https://ist.nenu.edu.cn/bksjy/xkzn.htm"><i class=></i> 选课指南</a>
-                        <a href="https://ist.nenu.edu.cn/bksjy/jxrc.htm"><i class=></i> 教学日程</a>
-                    </div>
-                </li>
+  <main class="main-wrapper">
+    <div class="content-card">
+      <div class="header">
+        <blockquote>
+          <p>我想借她给您讲一个故事</p>
+          <p>不管怎么样，都对看完这个故事的你的耐心表示感谢</p>
+        </blockquote>
+      </div>
 
-                <li>
-                    <a href="https://ist.nenu.edu.cn/yjsjy/zysz.htm">研究生教育 <i class="fas fa-angle-down"></i></a>
-                    <div class="dropdown-menu">
-                        <a href="https://ist.nenu.edu.cn/yjsjy/zysz.htm"><i class=></i> 专业设置</a>
-                        <a href="https://ist.nenu.edu.cn/yjsjy/pyfa.htm"><i class=></i> 培养方案</a>
-                        <a href="https://ist.nenu.edu.cn/yjsjy/jxkb.htm"><i class=></i> 教学课表</a>
-                        <a href="https://ist.nenu.edu.cn/yjsjy/jxrc.htm"><i class=></i> 教学日志</a>
-                        <a href="https://ist.nenu.edu.cn/yjsjy/gzzd.htm"><i class=></i> 规章制度</a>
-                        <a href="https://ist.nenu.edu.cn/yjsjy/ssyjsds.htm"><i class=></i> 硕士研究生导师</a>
-                        <a href="https://ist.nenu.edu.cn/yjsjy/bsyjsds.htm"><i class=></i> 博士研究生导师</a>
-                        <a href="https://ist.nenu.edu.cn/yjsjy/xwlwdbxx.htm"><i class=></i> 学位论文答辩信息</a>
-                    </div>
-                </li>
+      <div class="content">
+        <h3>我最喜欢的一句诗</h3>
+        <p>清漏渐移相望久，微云未接过来迟</p>
+        
+        <h3>主要内容</h3>
+        <p>我的爱好</p>
+        <ul>
+          <li><strong>编程</strong> 音乐<strong> 番剧</strong><strong> 文学</strong></li>
 
-                <li>
-                    <a href="https://ist.nenu.edu.cn/kxyj/kygk.htm">科学研究 <i class="fas fa-angle-down"></i></a>
-                    <div class="dropdown-menu">
-                        <a href="https://ist.nenu.edu.cn/kxyj/kygk.htm"><i class=></i> 科研概况</a>
-                        <a href="https://ist.nenu.edu.cn/kxyj/yjfx.htm"><i class=></i> 研究方向</a>
-                        <a href="https://ist.nenu.edu.cn/kxyj/cdxm.htm"><i class=></i> 承担项目</a>
-                        <a href="https://ist.nenu.edu.cn/kxyj/kyhd.htm"><i class=></i> 科研活动</a>
-                        <a href="https://ist.nenu.edu.cn/kxyj/kypt.htm"><i class=></i> 科研平台</a>
-                    </div>
-                </li>
-
-                <li>
-                    <a href="https://ist.nenu.edu.cn/gjhz/zmhzbx1.htm">国际合作 <i class="fas fa-angle-down"></i></a>
-                    <div class="dropdown-menu">
-                        <a href="https://ist.nenu.edu.cn/gjhz/zmhzbx1.htm"><i class=></i> 中美合作办学</a>
-                        <a href="https://ist.nenu.edu.cn/gjhz/gjjl.htm"><i class=></i> 国际交流</a>
-                        <a href="https://ist.nenu.edu.cn/gjhz/wshd.htm"><i class=></i> 外事活动</a>
-                        <a href="https://ist.nenu.edu.cn/gjhz/lxsxx.htm"><i class=></i> 留学生信息</a>
-                    </div>
-                </li>
-            </ul>
+        </ul>
+        
+        <div class="note">
+          <p><strong>我的随记</strong></p>
+          <p>我愿意随手摘录我生活的一角与你一同快乐</p>
+          <p style="font-size: 0.9rem; margin-top: 0.8rem; opacity: 0.9;">
+            <em>"我歌颂爱与希望，也歌颂陈腐与死亡"</em>
+          </p>
         </div>
-    </header>
+        
+        <p style="font-size: 1rem; opacity: 0.95; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+          这个博客还稍显简陋，但我会陪着她一直成长。
+        </p>
+      </div>
+    </div>
+  </main>
 
-    <!-- Banner区域 -->
-    <section class="banner">
-        <div class="banner-content">
-            <h1>博学笃行 为人师表</h1>
-            <p>东北师范大学学院 - 培养优秀人才，服务社会发展</p>
-            <a href="#" class="banner-btn">了解更多 <i class="fas fa-arrow-right"></i></a>
-        </div>
-    </section>
-
-    <!-- 学院简介 -->
-    <section class="intro-section">
-        <div class="section-title">
-            <h2>学院简介</h2>
-        </div>
-
-        <div class="intro-content">
-            <div class="intro-text">
-                <p>东北师范大学信息科学与技术学院位于长春净月国家高新技术产业开发区，毗邻风光秀美的净月潭国家森林公园。</p>
-                <p>信息科学与技术学院由原“计算机科学与信息技术学院”和“信息与软件工程学院”于2017年根据学校事业发展需要整合形成。学院设有计算机科学与技术（含中美合作交流项目）、教育技术学、图书馆学、信息资源管理和软件工程等5个本科专业；计算机科学与技术一级学科博士学位授权点，教育技术学二级学科博士学位授权点，图书情报与档案管理一级学科硕士学位授权点；教育技术学和课程与教学论二级学科硕士学位授权点，电子信息、现代教育技术和图书情报专业硕士学位授权点；是财政部、教育部“国培计划”——示范性集中培训项目（高中信息技术学科）培训机构。
-                </p>
-            </div>
-            <div class="intro-image">
-                <div class="slideshow-container">
-                    <div class="slides">
-                        <div class="slide fade active"><img
-                                src="https://ist.nenu.edu.cn/__local/8/1D/17/57B605D2A6BBC30E8619AC9CFE5_FFC27D3B_1A4B6.png"
-                                alt="轮播图1"></div>
-                        <div class="slide fade"><img
-                                src="https://ist.nenu.edu.cn/__local/A/31/ED/8D2EF96DCEF75D818BAC48064AD_C8AAEE14_1EBD1.jpg"
-                                alt="轮播图2"></div>
-                        <div class="slide fade"><img
-                                src="https://ist.nenu.edu.cn/__local/2/3D/04/838F0B373CF72825B56BCE2D933_FF9CF316_1B062.png"
-                                alt="轮播图3"></div>
-                        <div class="slide fade"><img
-                                src="https://ist.nenu.edu.cn/__local/A/B7/94/1E3072B29E72CCDE4F57EC1A16B_A109969B_14FE1.png"
-                                alt="轮播图4"></div>
-                        <div class="slide fade"><img
-                                src="https://ist.nenu.edu.cn/__local/2/0A/78/BF55FF2BFE5B5AEBC7CC435AA54_96E1569F_34B15.png"
-                                alt="轮播图5"></div>
-                    </div>
-                    <button class="slider-nav prev-btn"><i class="fas fa-chevron-left"></i></button>
-                    <button class="slider-nav next-btn"><i class="fas fa-chevron-right"></i></button>
-                    <div class="dots-container">
-                        <span class="dot active"></span>
-                        <span class="dot"></span>
-                        <span class="dot"></span>
-                        <span class="dot"></span>
-                        <span class="dot"></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 新增：信息板块 -->
-    <section class="info-section">
-        <div class="section-title">
-            <h2>学院动态</h2>
-        </div>
-
-        <div class="info-cards">
-            <!-- 学院通知 -->
-            <div class="info-card">
-                <div class="card-header">
-                    <i class="fas fa-bullhorn"></i> 学院通知
-                </div>
-                <div class="card-body">
-                    <ul class="info-list">
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1157/6021.htm">
-                                信息科学与技术学院2026年博士生导师任职资格公示
-                                <span class="info-date">06/04</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1157/6001.htm">
-                                信息科学与技术学院2025年度本科教学及公共教学的实验室建设项目实施方案公示
-                                <span class="info-date">05/21</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1157/5991.htm">
-                                信息科学与技术学院2025年全国优秀大学生暑期夏令营招生简章
-                                <span class="info-date">05/21</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1157/5981.htm">
-                                东北师范大学计算机科学与技术学科博士学位论文答辩公告-2025年05月22日
-                                <span class="info-date">05/19</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1157/5971.htm">
-                                东北师范大学教育技术学专业博士学位论文答辩公告-2025年05月24日
-                                <span class="info-date">05/19</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1157/5961.htm">
-                                关于我院研究生新生党员转入组织关系的通知
-                                <span class="info-date">05/15</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1157/5941.htm">
-                                2025春季学期信息科学与技术学院硕士学位论文答辩公告（三）
-                                <span class="info-date">05/13</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1157/5931.htm">
-                                2025春季学期信息科学与技术学院硕士学位论文答辩公告（二）
-                                <span class="info-date">05/13</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <a href="https://ist.nenu.edu.cn/index/xytz.htm" class="view-more">查看更多通知 <i class="fas fa-angle-right"></i></a>
-            </div>
-
-            <!-- 就业信息 -->
-            <div class="info-card">
-                <div class="card-header">
-                    <i class="fas fa-briefcase"></i> 就业信息
-                </div>
-                <div class="card-body">
-                    <ul class="info-list">
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1158/5368.htm">
-                                中国海洋大学档案馆专业技术人员招聘公告
-                                <span class="info-date">03/21</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1158/5367.htm">
-                                中国联通广东省分公司2024届春季校园招聘简章
-                                <span class="info-date">03/21</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1158/5359.htm">
-                                长春市面向2024年应届毕业生开展专项招聘计划
-                                <span class="info-date">03/07</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1158/5358.htm">
-                                北京云计算机有限公司毕业生招聘计划
-                                <span class="info-date">03/07</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1158/5277.htm">
-                                西安市人社局2024届毕业生选聘公告
-                                <span class="info-date">12/11</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1158/5276.htm">
-                                明阳集团2024全球校园招聘启动
-                                <span class="info-date">12/11</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <a href="https://ist.nenu.edu.cn/index/jyxx.htm" class="view-more">查看更多就业信息 <i class="fas fa-angle-right"></i></a>
-            </div>
-
-            <!-- 科研动态 -->
-            <div class="info-card">
-                <div class="card-header">
-                    <i class="fas fa-flask"></i> 科研动态
-                </div>
-                <div class="card-body">
-                    <ul class="info-list">
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1268/5851.htm">
-                                2025年信息科学学术论坛（七）——从 DeepSeek 的兴起看深化推理模型的必要性
-                                <span class="info-date">04/21</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1268/5811.htm">
-                                2025年信息科学学术论坛（六）——《理论世界的门外一瞥》
-                                <span class="info-date">04/11</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1268/5801.htm">
-                                2025年信息科学学术论坛（五）——《6G Mobile Communication Technology》
-                                <span class="info-date">04/08</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1268/5791.htm">
-                                2025年信息科学学术论坛（四）——《量子机器学习算法》
-                                <span class="info-date">03/14</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1268/5781.htm">
-                                2025年信息科学学术论坛（三）——《带权重标签割问题的近似算法》
-                                <span class="info-date">03/14</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1268/5771.htm">
-                                2025年信息科学学术论坛（二）——《On the query complexity of sampling from non-log-concave distributions》
-                                <span class="info-date">03/07</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1268/5761.htm">
-                                2025年信息科学学术论坛（一）——《Machine Learning-Based Hybrid Approaches for Combinatorial Optimization》
-                                <span class="info-date">02/25</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ist.nenu.edu.cn/info/1268/4738.htm">
-                                我院邀请上海财经大学陆品燕教授做题为“理论计算机”的线上学术报告
-                                <span class="info-date">04/07</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <a href="https://ist.nenu.edu.cn/index/xsdt1.htm" class="view-more">查看更多科研动态 <i class="fas fa-angle-right"></i></a>
-            </div>
-        </div>
-    </section>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>快速链接</h3>
-                <ul class="footer-links">
-                    <li><a href="http://www.nenu.edu.cn/"><i class="fas fa-external-link-alt"></i> 师大首页</a></li>
-                    <li><a href="https://ist.nenu.edu.cn/#"><i class="fas fa-external-link-alt"></i> 联系我们</a></li>
-                    <li><a href="https://ist.nenu.edu.cn/index/bzdh.htm"><i class="fas fa-external-link-alt"></i> 正版网站导航</a></li>
-                    <li><a href="http://jxxy.nenu.edu.cn/index.asp"><i class="fas fa-external-link-alt"></i> 旧版回顾</a></li>
-                    <li><a href="http://jxxy.nenu.edu.cn/school_en/detail.asp"><i class="fas fa-external-link-alt"></i> English</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h3>联系我们</h3>
-                <div class="contact-info">
-                    <p><i class="fas fa-map-marker-alt"></i> 吉林省长春市南关区人民大街5268号</p>
-                    <p><i class="fas fa-phone-alt"></i> 13257280475</p>
-                    <p><i class="fas fa-envelope"></i> 241971669@qq.com</p>
-                    <p><i class="fas fa-clock"></i> 不工作日 </p>
-                </div>
-            </div>
-
-            <div class="footer-section">
-                <h3>关注我们</h3>
-                <div
-                    style="margin-top: 20px; background: white; padding: 10px; display: inline-block; border-radius: 5px;">
-                    <img src="./下载.png" alt="微信公众号"
-                        style="width: 120px; height: 120px;">
-                </div>
-                <p style="margin-top: 10px;">扫码抵达正版网站</p>
-            </div>
-        </div>
-
-        <div class="copyright">
-            <p>Copyright © 2023  没有版权</p>
-            <p></p>
-        </div>
-    </footer>
-
-    <script>
-        // 轮播图功能实现
-        document.addEventListener('DOMContentLoaded', () => {
-            const slides = document.querySelectorAll('.slide');
-            const dots = document.querySelectorAll('.dot');
-            const prevBtn = document.querySelector('.prev-btn');
-            const nextBtn = document.querySelector('.next-btn');
-            let currentSlide = 0;
-            let autoSlide;
-
-            // 切换到指定幻灯片
-            function goToSlide(n) {
-                // 移除所有活动状态
-                slides.forEach(slide => slide.classList.remove('active'));
-                dots.forEach(dot => dot.classList.remove('active'));
-
-                // 处理循环逻辑
-                currentSlide = (n + slides.length) % slides.length;
-
-                // 添加活动状态
-                slides[currentSlide].classList.add('active');
-                dots[currentSlide].classList.add('active');
-            }
-
-            // 下一张幻灯片
-            function nextSlide() {
-                goToSlide(currentSlide + 1);
-            }
-
-            // 上一张幻灯片
-            function prevSlide() {
-                goToSlide(currentSlide - 1);
-            }
-
-            // 自动轮播
-            function startAutoSlide() {
-                autoSlide = setInterval(nextSlide, 3000);
-            }
-
-            // 停止自动轮播
-            function stopAutoSlide() {
-                clearInterval(autoSlide);
-            }
-
-            // 添加事件监听器
-            prevBtn.addEventListener('click', () => {
-                prevSlide();
-                stopAutoSlide();
-                startAutoSlide();
-            });
-
-            nextBtn.addEventListener('click', () => {
-                nextSlide();
-                stopAutoSlide();
-                startAutoSlide();
-            });
-
-            // 点指示器点击事件
-            dots.forEach((dot, index) => {
-                dot.addEventListener('click', () => {
-                    goToSlide(index);
-                    stopAutoSlide();
-                    startAutoSlide();
-                });
-            });
-
-            // 鼠标悬停时暂停轮播
-            document.querySelector('.slideshow-container').addEventListener('mouseenter', stopAutoSlide);
-            document.querySelector('.slideshow-container').addEventListener('mouseleave', startAutoSlide);
-
-            // 启动自动轮播
-            startAutoSlide();
-        });
-    </script>
 </body>
+</html>
 
 </html>
