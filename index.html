@@ -1,45 +1,68 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
-    <title>黑白棋 AI - 视觉统一版</title>
+    <title>黑白棋 AI - 完整集成版</title>
     <style>
+        <style>@font-face {
+            font-family: 'MyFont';
+            src: url('./fonts/小楷.ttf') format('truetype');
+        }
+
         body {
-            background-color: #1e2733; 
+            background-color: #1e2733;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px 0;
             color: #fefefe;
-            font-family: "Microsoft YaHei", sans-serif;
+            font-family: 'MyFont', "Microsoft YaHei", sans-serif;
+            /* 添加 MyFont */
         }
 
         #game-container {
             position: relative;
-            box-shadow: 0 10px 50px rgba(0,0,0,0.6);
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.6);
             border-radius: 8px;
             overflow: hidden;
         }
 
-        canvas { display: block; cursor: pointer; background-color: #2d3e50; }
+        canvas {
+            display: block;
+            cursor: pointer;
+            background-color: #2d3e50;
+        }
 
         .status-bar {
-            width: 640px; height: 70px;
+            width: 640px;
+            height: 70px;
             background-color: #141a23;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 30px; font-size: 18px; box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            font-size: 18px;
+            box-sizing: border-box;
             border-top: 1px solid #4a6075;
         }
 
         .overlay {
             position: absolute;
-            top: 0; left: 0; width: 640px; height: 640px;
+            top: 0;
+            left: 0;
+            width: 640px;
+            height: 640px;
             background: rgba(18, 23, 33, 0.96);
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             z-index: 100;
+            overflow-y: auto;
         }
 
         .btn-list {
@@ -54,7 +77,7 @@
             width: 100%;
             padding: 14px 0;
             background: #2d3e50;
-            border: 2px solid #4a6075; /* 默认边框色 */
+            border: 2px solid #4a6075;
             color: white;
             text-align: center;
             border-radius: 8px;
@@ -72,7 +95,8 @@
             color: #64d2ff;
         }
 
-        .btn.selected, .btn.action:active {
+        .btn.selected,
+        .btn.action:active {
             background: rgba(100, 210, 255, 0.15);
             border-color: #64d2ff;
             color: #64d2ff;
@@ -84,234 +108,638 @@
             box-shadow: 0 0 15px rgba(100, 210, 255, 0.3);
         }
 
-        h1 { font-size: 48px; margin-bottom: 30px; color: #fff; letter-spacing: 4px; }
-        h2 { font-size: 15px; margin-bottom: 12px; color: #64d2ff; text-transform: uppercase; letter-spacing: 2px; }
-        
-        #result-overlay { display: none; }
+        h1 {
+            font-size: 48px;
+            margin: 20px 0 30px;
+            color: #fff;
+            letter-spacing: 4px;
+        }
+
+        h2 {
+            font-size: 15px;
+            margin-bottom: 12px;
+            color: #64d2ff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #result-overlay {
+            display: none;
+            padding: 20px;
+        }
+
+        .evaluation-box {
+            background: rgba(45, 62, 80, 0.5);
+            border: 1px solid #4a6075;
+            border-radius: 8px;
+            padding: 20px;
+            width: 400px;
+            max-width: 90%;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .eval-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #4a6075;
+        }
+
+        .eval-item:last-child {
+            border-bottom: none;
+        }
+
+        .eval-label {
+            color: #a0a0a0;
+            font-size: 15px;
+        }
+
+        .eval-value {
+            color: #64d2ff;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .tips-box {
+            background: rgba(100, 210, 255, 0.05);
+            border-left: 3px solid #64d2ff;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+
+        .tip-item {
+            color: #fefefe;
+            font-size: 14px;
+            line-height: 1.8;
+            margin: 5px 0;
+        }
+
+        .tip-item:before {
+            content: "• ";
+            color: #64d2ff;
+            font-weight: bold;
+        }
+
+        .rating-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #64d2ff, #4a9eff);
+            border-radius: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(100, 210, 255, 0.3);
+        }
+
+        .loading {
+            color: #64d2ff;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        /* API配置输入框 */
+        .api-config {
+            width: 320px;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(45, 62, 80, 0.3);
+            border: 1px solid #4a6075;
+            border-radius: 8px;
+        }
+
+        .api-config input {
+            width: 100%;
+            padding: 10px;
+            background: #2d3e50;
+            border: 1px solid #4a6075;
+            border-radius: 4px;
+            color: white;
+            font-size: 14px;
+            box-sizing: border-box;
+            margin-top: 8px;
+        }
+
+        .api-config input::placeholder {
+            color: #6a7a8f;
+        }
+
+        .api-config label {
+            color: #a0a0a0;
+            font-size: 13px;
+            display: block;
+        }
     </style>
 </head>
+
 <body>
+    <div id="game-container">
+        <div id="menu" class="overlay">
+            <h1>黑白棋 AI</h1>
 
-<div id="game-container">
-    <div id="menu" class="overlay">
-        <h1>黑白棋 AI</h1>
-        
-        <h2>第一步：选择对弈难度</h2>
-        <div class="btn-list">
-            <div class="btn diff-option" onclick="setDiff(3, this)">入门水平 (3层搜索)</div>
-            <div class="btn diff-option" onclick="setDiff(4, this)">进阶挑战 (4层搜索)</div>
-            <div class="btn diff-option selected" onclick="setDiff(5, this)">大师对决 (5层搜索)</div>
+            <h2>第一步：选择对弈难度</h2>
+            <div class="btn-list">
+                <div class="btn diff-option" onclick="setDiff(3, this)">入门水平 (3层搜索)</div>
+                <div class="btn diff-option" onclick="setDiff(4, this)">进阶挑战 (4层搜索)</div>
+                <div class="btn diff-option selected" onclick="setDiff(5, this)">大师对决 (5层搜索)</div>
+            </div>
+
+            <h2>第二步：选择先后手并开始</h2>
+            <div class="btn-list">
+                <div class="btn action" onclick="startGame(1)">玩家持黑 (先手)</div>
+                <div class="btn action" onclick="startGame(2)">玩家持白 (后手)</div>
+            </div>
+
+            <div class="api-config">
+                <input type="text" id="api-endpoint" placeholder="留空使用本地评价">
+            </div>
         </div>
 
-        <h2>第二步：选择先后手并开始</h2>
-        <div class="btn-list">
-            <div class="btn action" onclick="startGame(1)">玩家持黑 (先手)</div>
-            <div class="btn action" onclick="startGame(2)">玩家持白 (后手)</div>
+        <div id="result-overlay" class="overlay">
+            <h1 id="res-title">对局结束</h1>
+            <h2 id="res-score" style="color: #fff; font-size: 20px;">比分统计</h2>
+
+            <div class="evaluation-box" id="eval-box">
+                <div id="eval-loading" class="loading">正在分析对局...</div>
+                <div id="eval-content" style="display:none;">
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <div class="rating-badge" id="rating-badge">分析中</div>
+                    </div>
+                    <div class="eval-item">
+                        <span class="eval-label">最佳手率</span>
+                        <span class="eval-value" id="best-move-rate">--</span>
+                    </div>
+                    <div class="eval-item">
+                        <span class="eval-label">平均用时</span>
+                        <span class="eval-value" id="avg-think-time">--</span>
+                    </div>
+                    <div class="eval-item">
+                        <span class="eval-label">总步数</span>
+                        <span class="eval-value" id="total-moves">--</span>
+                    </div>
+                    <div class="eval-item">
+                        <span class="eval-label">对局时长</span>
+                        <span class="eval-value" id="game-duration">--</span>
+                    </div>
+                    <div class="tips-box" id="tips-box" style="display:none;">
+                        <div style="color: #64d2ff; font-weight: bold; margin-bottom: 10px;">💡 改进建议</div>
+                        <div id="tips-content"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-list" style="margin-top: 20px;">
+                <div class="btn action" onclick="backToMenu()">返回主菜单</div>
+            </div>
+        </div>
+
+        <canvas id="board" width="640" height="640"></canvas>
+
+        <div class="status-bar">
+            <div id="status">准备就绪</div>
+            <div id="score">黑: 2 | 白: 2</div>
         </div>
     </div>
 
-    <div id="result-overlay" class="overlay">
-        <h1 id="res-title">对局结束</h1>
-        <h2 id="res-detail" style="color: #fff; font-size: 20px;">比分统计</h2>
-        <div class="btn-list" style="margin-top: 40px;">
-            <div class="btn action" onclick="backToMenu()">返回主菜单</div>
-        </div>
-    </div>
-    
-    <canvas id="board" width="640" height="640"></canvas>
-    
-    <div class="status-bar">
-        <div id="status">准备就绪</div>
-        <div id="score">黑: 2 | 白: 2</div>
-    </div>
-</div>
+    <script>
+        const canvas = document.getElementById('board');
+        const ctx = canvas.getContext('2d');
+        const S = 640, G = S / 8;
+        const COLORS = {
+            BOARD: '#2d3e50', GRID: '#4a6075',
+            ACCENT: '#64d2ff', BLACK: '#0f0f0f', WHITE: '#fafaff'
+        };
+        const WEIGHTS = [
+            [100, -25, 10, 5, 5, 10, -25, 100],
+            [-25, -60, -2, -2, -2, -2, -60, -25],
+            [10, -2, 5, 2, 2, 5, -2, 10],
+            [5, -2, 2, 1, 1, 2, -2, 5],
+            [5, -2, 2, 1, 1, 2, -2, 5],
+            [10, -2, 5, 2, 2, 5, -2, 10],
+            [-25, -60, -2, -2, -2, -2, -60, -25],
+            [100, -25, 10, 5, 5, 10, -25, 100]
+        ];
 
-<script>
-    const canvas = document.getElementById('board');
-    const ctx = canvas.getContext('2d');
-    const S = 640, G = S / 8;
+        let board = [], human = 1, ai = 2, turn = 1, gameOver = false, searchDepth = 5;
 
-    const COLORS = {
-        BOARD: '#2d3e50', GRID: '#4a6075',
-        ACCENT: '#64d2ff', BLACK: '#0f0f0f', WHITE: '#fafaff'
-    };
+        // ========== 对局记录系统 ==========
+        let gameRecord = {
+            difficulty: 5,
+            playerColor: 1,
+            moves: [],
+            startTime: null,
+            endTime: null,
+            lastMoveTime: null
+        };
 
-    const WEIGHTS = [
-        [100, -25, 10, 5, 5, 10, -25, 100],
-        [-25, -60, -2, -2, -2, -2, -60, -25],
-        [10, -2, 5, 2, 2, 5, -2, 10],
-        [5, -2, 2, 1, 1, 2, -2, 5],
-        [5, -2, 2, 1, 1, 2, -2, 5],
-        [10, -2, 5, 2, 2, 5, -2, 10],
-        [-25, -60, -2, -2, -2, -2, -60, -25],
-        [100, -25, 10, 5, 5, 10, -25, 100]
-    ];
-
-    let board = [], human = 1, ai = 2, turn = 1, gameOver = false, searchDepth = 5;
-
-    function setDiff(d, el) {
-        searchDepth = d;
-        document.querySelectorAll('.diff-option').forEach(b => b.classList.remove('selected'));
-        el.classList.add('selected');
-    }
-
-    function backToMenu() {
-        document.getElementById('result-overlay').style.display = 'none';
-        document.getElementById('menu').style.display = 'flex';
-    }
-
-    function initBoard() {
-        board = Array.from({length: 8}, () => Array(8).fill(0));
-        board[3][3] = board[4][4] = 2; board[3][4] = board[4][3] = 1;
-    }
-
-    function startGame(playerColor) {
-        human = playerColor; ai = 3 - playerColor; turn = 1; gameOver = false;
-        document.getElementById('menu').style.display = 'none';
-        initBoard(); draw();
-        if (turn === ai) setTimeout(aiMove, 600);
-    }
-
-    function isValidMove(b, r, c, p) {
-        if (r < 0 || r >= 8 || c < 0 || c >= 8 || b[r][c] !== 0) return false;
-        const opp = 3 - p;
-        const dirs = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
-        for (let [dr, dc] of dirs) {
-            let nr = r + dr, nc = c + dc, foundOpp = false;
-            while (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
-                if (b[nr][nc] === opp) foundOpp = true;
-                else if (b[nr][nc] === p) { if (foundOpp) return true; break; }
-                else break;
-                nr += dr; nc += dc;
-            }
+        function setDiff(d, el) {
+            searchDepth = d;
+            document.querySelectorAll('.diff-option').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
         }
-        return false;
-    }
 
-    function getValidMoves(b, p) {
-        let moves = [];
-        for (let r = 0; r < 8; r++)
-            for (let c = 0; c < 8; c++)
-                if (isValidMove(b, r, c, p)) moves.push({r, c});
-        return moves;
-    }
-
-    function makeMove(b, row, col, p) {
-        let nb = b.map(row => [...row]); nb[row][col] = p;
-        const opp = 3 - p;
-        const dirs = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
-        for (let [dr, dc] of dirs) {
-            let nr = row + dr, nc = col + dc, toFlip = [];
-            while (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
-                if (nb[nr][nc] === opp) toFlip.push([nr, nc]);
-                else if (nb[nr][nc] === p) { toFlip.forEach(([fr, fc]) => nb[fr][fc] = p); break; }
-                else break;
-                nr += dr; nc += dc;
-            }
+        function backToMenu() {
+            document.getElementById('result-overlay').style.display = 'none';
+            document.getElementById('menu').style.display = 'flex';
         }
-        return nb;
-    }
 
-    function evaluate(b, p) {
-        let score = 0, opp = 3 - p;
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                if (b[r][c] === p) score += WEIGHTS[r][c];
-                else if (b[r][c] === opp) score -= WEIGHTS[r][c];
-            }
+        function initBoard() {
+            board = Array.from({ length: 8 }, () => Array(8).fill(0));
+            board[3][3] = board[4][4] = 2;
+            board[3][4] = board[4][3] = 1;
         }
-        return score * 10 + (getValidMoves(b, p).length - getValidMoves(b, opp).length) * 20;
-    }
 
-    function minimax(b, depth, alpha, beta, maximizing, p) {
-        if (depth === 0) return {score: evaluate(b, p)};
-        let curr = maximizing ? p : 3 - p;
-        let moves = getValidMoves(b, curr);
-        if (moves.length === 0) return minimax(b, depth - 1, alpha, beta, !maximizing, p);
+        function startGame(playerColor) {
+            human = playerColor;
+            ai = 3 - playerColor;
+            turn = 1;
+            gameOver = false;
 
-        let bestMove = null;
-        if (maximizing) {
-            let maxEval = -Infinity;
-            for (let m of moves) {
-                let ev = minimax(makeMove(b, m.r, m.c, curr), depth - 1, alpha, beta, false, p).score;
-                if (ev > maxEval) { maxEval = ev; bestMove = m; }
-                alpha = Math.max(alpha, ev); if (beta <= alpha) break;
-            }
-            return {score: maxEval, move: bestMove};
-        } else {
-            let minEval = Infinity;
-            for (let m of moves) {
-                let ev = minimax(makeMove(b, m.r, m.c, curr), depth - 1, alpha, beta, true, p).score;
-                if (ev < minEval) { minEval = ev; bestMove = m; }
-                beta = Math.min(beta, ev); if (beta <= alpha) break;
-            }
-            return {score: minEval, move: bestMove};
+            // 初始化对局记录
+            gameRecord = {
+                difficulty: searchDepth,
+                playerColor: playerColor,
+                moves: [],
+                startTime: Date.now(),
+                endTime: null,
+                lastMoveTime: Date.now()
+            };
+
+            document.getElementById('menu').style.display = 'none';
+            initBoard();
+            draw();
+            if (turn === ai) setTimeout(aiMove, 600);
         }
-    }
 
-    function aiMove() {
-        if (gameOver) return;
-        let res = minimax(board, searchDepth, -Infinity, Infinity, true, ai);
-        if (res.move) board = makeMove(board, res.move.r, res.move.c, ai);
-        nextTurn();
-    }
-
-    function nextTurn() {
-        turn = 3 - turn;
-        if (getValidMoves(board, turn).length === 0) {
-            turn = 3 - turn;
-            if (getValidMoves(board, turn).length === 0) {
-                gameOver = true;
-                showResult();
-            } else if (turn === ai) setTimeout(aiMove, 600);
-        } else if (turn === ai) setTimeout(aiMove, 600);
-        draw();
-    }
-
-    function showResult() {
-        const b = board.flat().filter(x => x === 1).length;
-        const w = board.flat().filter(x => x === 2).length;
-        const resTitle = document.getElementById('res-title');
-        if (b === w) { resTitle.innerText = "平局"; resTitle.style.color = "#fff"; }
-        else if ((b > w && human === 1) || (w > b && human === 2)) { resTitle.innerText = "胜利！"; resTitle.style.color = "#64d2ff"; }
-        else { resTitle.innerText = "失败"; resTitle.style.color = "#ff4d4d"; }
-        
-        document.getElementById('res-detail').innerText = `黑子 ${b} : 白子 ${w}`;
-        document.getElementById('result-overlay').style.display = 'flex';
-    }
-
-    function draw() {
-        ctx.clearRect(0, 0, S, S);
-        let validMoves = getValidMoves(board, turn);
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                ctx.fillStyle = COLORS.BOARD; ctx.fillRect(c * G, r * G, G, G);
-                ctx.strokeStyle = COLORS.GRID; ctx.strokeRect(c * G, r * G, G, G);
-                let cx = c * G + G/2, cy = r * G + G/2, rad = G/2 - 10;
-                if (board[r][c] !== 0) {
-                    ctx.beginPath(); ctx.arc(cx, cy, rad, 0, Math.PI*2);
-                    ctx.fillStyle = board[r][c] === 1 ? COLORS.BLACK : COLORS.WHITE;
-                    ctx.shadowBlur = 10; ctx.shadowColor = "rgba(0,0,0,0.5)"; ctx.fill(); ctx.shadowBlur = 0;
-                } else if (!gameOver && turn === human && validMoves.some(m => m.r === r && m.c === c)) {
-                    ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI*2);
-                    ctx.fillStyle = COLORS.ACCENT; ctx.fill();
+        function isValidMove(b, r, c, p) {
+            if (r < 0 || r >= 8 || c < 0 || c >= 8 || b[r][c] !== 0) return false;
+            const opp = 3 - p;
+            const dirs = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+            for (let [dr, dc] of dirs) {
+                let nr = r + dr, nc = c + dc, foundOpp = false;
+                while (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                    if (b[nr][nc] === opp) foundOpp = true;
+                    else if (b[nr][nc] === p) { if (foundOpp) return true; break; }
+                    else break;
+                    nr += dr; nc += dc;
                 }
             }
+            return false;
         }
-        let bCount = board.flat().filter(x => x === 1).length;
-        let wCount = board.flat().filter(x => x === 2).length;
-        document.getElementById('score').innerText = `黑: ${bCount} | 白: ${wCount}`;
-        document.getElementById('status').innerText = turn === human ? "轮到你了" : "AI 思考中 (深度:" + searchDepth + ")";
-    }
 
-    canvas.addEventListener('mousedown', (e) => {
-        if (turn !== human || gameOver) return;
-        const rect = canvas.getBoundingClientRect();
-        const c = Math.floor((e.clientX - rect.left) / G), r = Math.floor((e.clientY - rect.top) / G);
-        if (isValidMove(board, r, c, human)) { board = makeMove(board, r, c, human); nextTurn(); }
-    });
-</script>
+        function getValidMoves(b, p) {
+            let moves = [];
+            for (let r = 0; r < 8; r++)
+                for (let c = 0; c < 8; c++)
+                    if (isValidMove(b, r, c, p)) moves.push({ r, c });
+            return moves;
+        }
+
+        function makeMove(b, row, col, p, recordMove = false) {
+            let nb = b.map(row => [...row]);
+            nb[row][col] = p;
+            const opp = 3 - p;
+            const dirs = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+            for (let [dr, dc] of dirs) {
+                let nr = row + dr, nc = col + dc, toFlip = [];
+                while (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                    if (nb[nr][nc] === opp) toFlip.push([nr, nc]);
+                    else if (nb[nr][nc] === p) { toFlip.forEach(([fr, fc]) => nb[fr][fc] = p); break; }
+                    else break;
+                    nr += dr; nc += dc;
+                }
+            }
+
+            // ========== 记录走法 ==========
+            if (recordMove && !gameOver) {
+                const currentTime = Date.now();
+                const thinkTime = currentTime - gameRecord.lastMoveTime;
+                gameRecord.lastMoveTime = currentTime;
+
+                const allMoves = getValidMoves(b, p);
+                const moveScores = allMoves.map(m => ({
+                    pos: m,
+                    score: evaluate(makeMove(b, m.r, m.c, p, false), p)
+                }));
+                const bestScore = Math.max(...moveScores.map(m => m.score));
+                const currentScore = evaluate(nb, p);
+
+                // 找到最佳走法位置
+                const bestMoves = moveScores.filter(m => m.score === bestScore);
+                const isBestMove = bestMoves.some(m => m.pos.r === row && m.pos.c === col);
+
+                gameRecord.moves.push({
+                    player: p,
+                    position: { row, col },
+                    timestamp: currentTime - gameRecord.startTime,
+                    thinkTime: p === human ? thinkTime : 0,
+                    evaluation: currentScore,
+                    isBestMove: isBestMove,
+                    alternatives: allMoves.length,
+                    bestScore: bestScore,
+                    actualScore: currentScore,
+                    missedPoints: isBestMove ? 0 : bestScore - currentScore
+                });
+            }
+
+            return nb;
+        }
+
+        function evaluate(b, p) {
+            let score = 0, opp = 3 - p;
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    if (b[r][c] === p) score += WEIGHTS[r][c];
+                    else if (b[r][c] === opp) score -= WEIGHTS[r][c];
+                }
+            }
+            return score * 10 + (getValidMoves(b, p).length - getValidMoves(b, opp).length) * 20;
+        }
+
+        function minimax(b, depth, alpha, beta, maximizing, p) {
+            if (depth === 0) return { score: evaluate(b, p) };
+            let curr = maximizing ? p : 3 - p;
+            let moves = getValidMoves(b, curr);
+            if (moves.length === 0) return minimax(b, depth - 1, alpha, beta, !maximizing, p);
+            let bestMove = null;
+            if (maximizing) {
+                let maxEval = -Infinity;
+                for (let m of moves) {
+                    let ev = minimax(makeMove(b, m.r, m.c, curr, false), depth - 1, alpha, beta, false, p).score;
+                    if (ev > maxEval) { maxEval = ev; bestMove = m; }
+                    alpha = Math.max(alpha, ev); if (beta <= alpha) break;
+                }
+                return { score: maxEval, move: bestMove };
+            } else {
+                let minEval = Infinity;
+                for (let m of moves) {
+                    let ev = minimax(makeMove(b, m.r, m.c, curr, false), depth - 1, alpha, beta, true, p).score;
+                    if (ev < minEval) { minEval = ev; bestMove = m; }
+                    beta = Math.min(beta, ev); if (beta <= alpha) break;
+                }
+                return { score: minEval, move: bestMove };
+            }
+        }
+
+        function aiMove() {
+            if (gameOver) return;
+            let res = minimax(board, searchDepth, -Infinity, Infinity, true, ai);
+            if (res.move) board = makeMove(board, res.move.r, res.move.c, ai, true);
+            nextTurn();
+        }
+
+        function nextTurn() {
+            turn = 3 - turn;
+            if (getValidMoves(board, turn).length === 0) {
+                turn = 3 - turn;
+                if (getValidMoves(board, turn).length === 0) {
+                    gameOver = true;
+                    showResult();
+                } else if (turn === ai) setTimeout(aiMove, 600);
+            } else if (turn === ai) setTimeout(aiMove, 600);
+            draw();
+        }
+
+        // ========== 对局评价系统 ==========
+        async function evaluateGame(record) {
+            const apiEndpoint = document.getElementById('api-endpoint').value.trim();
+
+            // 如果配置了API地址，尝试调用
+            if (apiEndpoint) {
+                try {
+                    const response = await fetch(apiEndpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            difficulty: record.difficulty,
+                            playerColor: record.playerColor,
+                            moves: record.moves,
+                            duration: record.endTime - record.startTime,
+                            finalScore: record.finalScore
+                        })
+                    });
+
+                    if (response.ok) {
+                        return await response.json();
+                    }
+                } catch (error) {
+                    console.error('API调用失败，使用本地评价:', error);
+                }
+            }
+
+            // 降级到本地评价
+            return getLocalEvaluation(record);
+        }
+
+        function getLocalEvaluation(record) {
+            const playerMoves = record.moves.filter(m => m.player === record.playerColor);
+            const aiMoves = record.moves.filter(m => m.player !== record.playerColor);
+
+            // 计算最佳手率
+            const bestMoveCount = playerMoves.filter(m => m.isBestMove).length;
+            const bestMoveRate = playerMoves.length > 0 ? bestMoveCount / playerMoves.length : 0;
+
+            // 计算平均思考时间(排除第一步)
+            const thinkTimes = playerMoves.slice(1).map(m => m.thinkTime).filter(t => t > 0);
+            const avgThinkTime = thinkTimes.length > 0
+                ? thinkTimes.reduce((a, b) => a + b, 0) / thinkTimes.length
+                : 0;
+
+            // 计算关键失误(损失超过100分的走法)
+            const criticalMistakes = playerMoves.filter(m => m.missedPoints > 100);
+
+            // 计算开局表现(前10步)
+            const earlyMoves = playerMoves.slice(0, Math.min(10, playerMoves.length));
+            const earlyBestRate = earlyMoves.length > 0
+                ? earlyMoves.filter(m => m.isBestMove).length / earlyMoves.length
+                : 0;
+
+            // 评级系统
+            let rating = '初学者';
+            let ratingColor = '#ff9800';
+
+            if (bestMoveRate >= 0.75) {
+                rating = '大师级';
+                ratingColor = '#ffd700';
+            } else if (bestMoveRate >= 0.60) {
+                rating = '高手';
+                ratingColor = '#64d2ff';
+            } else if (bestMoveRate >= 0.45) {
+                rating = '进阶';
+                ratingColor = '#4caf50';
+            } else if (bestMoveRate >= 0.30) {
+                rating = '入门';
+                ratingColor = '#9c27b0';
+            }
+
+            // 生成建议
+            const tips = [];
+
+            if (earlyBestRate < 0.4) {
+                tips.push('开局阶段应尽量控制中心区域');
+            }
+
+            if (criticalMistakes.length > 2) {
+                tips.push('发现' + criticalMistakes.length + '次关键失误，下棋前可以多思考几秒，评估各个位置的价值');
+            }
+
+            if (avgThinkTime < 2000 && bestMoveRate < 0.5) {
+                tips.push('适当增加思考时间可以提高决策质量，不要急于落子');
+            }
+
+            const playerScore = record.finalScore[record.playerColor === 1 ? 'black' : 'white'];
+            const aiScore = record.finalScore[record.playerColor === 1 ? 'white' : 'black'];
+
+            if (playerScore < aiScore && bestMoveRate < 0.4) {
+                tips.push('尝试控制更多的可选位置（行动力），限制对手的选择空间');
+            }
+
+            if (tips.length === 0) {
+                if (bestMoveRate >= 0.7) {
+                    tips.push('表现优秀！可以尝试更高难度的挑战');
+                } else {
+                    tips.push('继续练习，注意观察每个位置的战略价值');
+                }
+            }
+
+            return {
+                rating: rating,
+                ratingColor: ratingColor,
+                bestMoveRate: (bestMoveRate * 100).toFixed(1) + '%',
+                avgThinkTime: (avgThinkTime / 1000).toFixed(1) + '秒',
+                totalMoves: playerMoves.length,
+                gameDuration: formatDuration(record.endTime - record.startTime),
+                tips: tips,
+                stats: {
+                    bestMoveCount: bestMoveCount,
+                    totalMoves: playerMoves.length,
+                    criticalMistakes: criticalMistakes.length,
+                    earlyBestRate: (earlyBestRate * 100).toFixed(0) + '%'
+                }
+            };
+        }
+
+        function formatDuration(ms) {
+            const seconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            if (minutes > 0) {
+                return minutes + '分' + remainingSeconds + '秒';
+            }
+            return seconds + '秒';
+        }
+
+        async function showResult() {
+            const b = board.flat().filter(x => x === 1).length;
+            const w = board.flat().filter(x => x === 2).length;
+
+            gameRecord.endTime = Date.now();
+            gameRecord.finalScore = { black: b, white: w };
+
+            // 显示基础结果
+            const resTitle = document.getElementById('res-title');
+            if (b === w) {
+                resTitle.innerText = "平局";
+                resTitle.style.color = "#fff";
+            } else if ((b > w && human === 1) || (w > b && human === 2)) {
+                resTitle.innerText = "胜利！";
+                resTitle.style.color = "#64d2ff";
+            } else {
+                resTitle.innerText = "失败";
+                resTitle.style.color = "#ff4d4d";
+            }
+
+            document.getElementById('res-score').innerText = `黑子 ${b} : 白子 ${w}`;
+            document.getElementById('result-overlay').style.display = 'flex';
+            document.getElementById('eval-loading').style.display = 'block';
+            document.getElementById('eval-content').style.display = 'none';
+
+            // 异步获取评价
+            try {
+                const evaluation = await evaluateGame(gameRecord);
+                displayEvaluation(evaluation);
+            } catch (error) {
+                console.error('评价生成失败:', error);
+                document.getElementById('eval-loading').innerText = '评价生成失败';
+            }
+        }
+
+        function displayEvaluation(evaluation) {
+            document.getElementById('eval-loading').style.display = 'none';
+            document.getElementById('eval-content').style.display = 'block';
+
+            // 设置评级徽章
+            const ratingBadge = document.getElementById('rating-badge');
+            ratingBadge.innerText = evaluation.rating;
+            if (evaluation.ratingColor) {
+                ratingBadge.style.background = evaluation.ratingColor;
+            }
+
+            // 设置各项数据
+            document.getElementById('best-move-rate').innerText = evaluation.bestMoveRate;
+            document.getElementById('avg-think-time').innerText = evaluation.avgThinkTime;
+            document.getElementById('total-moves').innerText = evaluation.totalMoves;
+            document.getElementById('game-duration').innerText = evaluation.gameDuration;
+
+            // 显示建议
+            if (evaluation.tips && evaluation.tips.length > 0) {
+                document.getElementById('tips-box').style.display = 'block';
+                const tipsContent = document.getElementById('tips-content');
+                tipsContent.innerHTML = evaluation.tips.map(tip =>
+                    `<div class="tip-item">${tip}</div>`
+                ).join('');
+            } else {
+                document.getElementById('tips-box').style.display = 'none';
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, S, S);
+            let validMoves = getValidMoves(board, turn);
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    ctx.fillStyle = COLORS.BOARD;
+                    ctx.fillRect(c * G, r * G, G, G);
+                    ctx.strokeStyle = COLORS.GRID;
+                    ctx.strokeRect(c * G, r * G, G, G);
+                    let cx = c * G + G / 2, cy = r * G + G / 2, rad = G / 2 - 10;
+                    if (board[r][c] !== 0) {
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+                        ctx.fillStyle = board[r][c] === 1 ? COLORS.BLACK : COLORS.WHITE;
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = "rgba(0,0,0,0.5)";
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                    } else if (!gameOver && turn === human && validMoves.some(m => m.r === r && m.c === c)) {
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+                        ctx.fillStyle = COLORS.ACCENT;
+                        ctx.fill();
+                    }
+                }
+            }
+            let bCount = board.flat().filter(x => x === 1).length;
+            let wCount = board.flat().filter(x => x === 2).length;
+            document.getElementById('score').innerText = `黑: ${bCount} | 白: ${wCount}`;
+            document.getElementById('status').innerText = turn === human ? "轮到你了" : "AI 思考中 (深度:" + searchDepth + ")";
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (turn !== human || gameOver) return;
+            const rect = canvas.getBoundingClientRect();
+            const c = Math.floor((e.clientX - rect.left) / G), r = Math.floor((e.clientY - rect.top) / G);
+            if (isValidMove(board, r, c, human)) {
+                board = makeMove(board, r, c, human, true);
+                nextTurn();
+            }
+        });
+    </script>
 </body>
+
 </html>
 
 </html>
