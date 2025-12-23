@@ -5,11 +5,6 @@
     <meta charset="UTF-8">
     <title>黑白棋 AI - 完整集成版</title>
     <style>
-        @font-face {
-            font-family: 'MyFont';
-            src: url('./fonts/小楷.ttf') format('truetype');
-        }
-
         body {
             background-color: #1e2733;
             display: flex;
@@ -21,7 +16,11 @@
             padding: 20px 0;
             color: #fefefe;
             font-family: 'MyFont', "Microsoft YaHei", sans-serif;
-            /* 添加 MyFont */
+        }
+
+        @font-face {
+            font-family: 'MyFont';
+            src: url('./fonts/小楷.ttf') format('truetype');
         }
 
         #game-container {
@@ -29,6 +28,7 @@
             box-shadow: 0 10px 50px rgba(0, 0, 0, 0.6);
             border-radius: 8px;
             overflow: hidden;
+            width: 640px;
         }
 
         canvas {
@@ -50,19 +50,42 @@
             border-top: 1px solid #4a6075;
         }
 
+        /* 胜率显示 */
+        .win-rate-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 100px;
+        }
+
+        .win-rate-label {
+            font-size: 10px;
+            color: #a0a0a0;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        #win-rate-value {
+            color: #64d2ff;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
         .overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 640px;
-            height: 640px;
-            background: rgba(18, 23, 33, 0.96);
+            height: 640px; /* 与画布等高，完全遮盖 */
+            background: rgba(18, 23, 33, 0.98);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            z-index: 100;
+            justify-content: flex-start; /* 修正：从顶部开始，防止内容多时标题消失 */
+            z-index: 500; /* 提高层级 */
             overflow-y: auto;
+            padding: 30px 0;
+            box-sizing: border-box;
         }
 
         .btn-list {
@@ -71,6 +94,7 @@
             gap: 12px;
             width: 320px;
             margin-bottom: 30px;
+            flex-shrink: 0;
         }
 
         .btn {
@@ -103,16 +127,12 @@
             box-shadow: 0 0 15px rgba(100, 210, 255, 0.2);
         }
 
-        .btn.action:hover {
-            border-color: #64d2ff;
-            box-shadow: 0 0 15px rgba(100, 210, 255, 0.3);
-        }
-
         h1 {
             font-size: 48px;
-            margin: 20px 0 30px;
+            margin: 10px 0 20px;
             color: #fff;
             letter-spacing: 4px;
+            flex-shrink: 0;
         }
 
         h2 {
@@ -121,11 +141,7 @@
             color: #64d2ff;
             text-transform: uppercase;
             letter-spacing: 2px;
-        }
-
-        #result-overlay {
-            display: none;
-            padding: 20px;
+            flex-shrink: 0;
         }
 
         .evaluation-box {
@@ -133,10 +149,10 @@
             border: 1px solid #4a6075;
             border-radius: 8px;
             padding: 20px;
-            width: 400px;
-            max-width: 90%;
-            margin: 20px 0;
+            width: 440px;
+            margin: 10px 0 20px;
             text-align: left;
+            flex-shrink: 0;
         }
 
         .eval-item {
@@ -199,9 +215,9 @@
             color: #64d2ff;
             font-size: 14px;
             margin-top: 10px;
+            text-align: center;
         }
 
-        /* API配置输入框 */
         .api-config {
             width: 320px;
             margin-top: 20px;
@@ -222,16 +238,6 @@
             box-sizing: border-box;
             margin-top: 8px;
         }
-
-        .api-config input::placeholder {
-            color: #6a7a8f;
-        }
-
-        .api-config label {
-            color: #a0a0a0;
-            font-size: 13px;
-            display: block;
-        }
     </style>
 </head>
 
@@ -239,29 +245,25 @@
     <div id="game-container">
         <div id="menu" class="overlay">
             <h1>黑白棋 AI</h1>
-
             <h2>第一步：选择对弈难度</h2>
             <div class="btn-list">
                 <div class="btn diff-option" onclick="setDiff(3, this)">入门水平 (3层搜索)</div>
                 <div class="btn diff-option" onclick="setDiff(4, this)">进阶挑战 (4层搜索)</div>
                 <div class="btn diff-option selected" onclick="setDiff(5, this)">大师对决 (5层搜索)</div>
             </div>
-
             <h2>第二步：选择先后手并开始</h2>
             <div class="btn-list">
                 <div class="btn action" onclick="startGame(1)">玩家持黑 (先手)</div>
                 <div class="btn action" onclick="startGame(2)">玩家持白 (后手)</div>
             </div>
-
             <div class="api-config">
                 <input type="text" id="api-endpoint" placeholder="留空使用本地评价">
             </div>
         </div>
 
-        <div id="result-overlay" class="overlay">
+        <div id="result-overlay" class="overlay" style="display: none;">
             <h1 id="res-title">对局结束</h1>
             <h2 id="res-score" style="color: #fff; font-size: 20px;">比分统计</h2>
-
             <div class="evaluation-box" id="eval-box">
                 <div id="eval-loading" class="loading">正在分析对局...</div>
                 <div id="eval-content" style="display:none;">
@@ -290,8 +292,7 @@
                     </div>
                 </div>
             </div>
-
-            <div class="btn-list" style="margin-top: 20px;">
+            <div class="btn-list">
                 <div class="btn action" onclick="backToMenu()">返回主菜单</div>
             </div>
         </div>
@@ -300,6 +301,10 @@
 
         <div class="status-bar">
             <div id="status">准备就绪</div>
+            <div class="win-rate-container">
+                <div class="win-rate-label">玩家胜率预测</div>
+                <div id="win-rate-value">50.0%</div>
+            </div>
             <div id="score">黑: 2 | 白: 2</div>
         </div>
     </div>
@@ -325,14 +330,10 @@
 
         let board = [], human = 1, ai = 2, turn = 1, gameOver = false, searchDepth = 5;
 
-        // ========== 对局记录系统 ==========
+        // 对局记录
         let gameRecord = {
-            difficulty: 5,
-            playerColor: 1,
-            moves: [],
-            startTime: null,
-            endTime: null,
-            lastMoveTime: null
+            difficulty: 5, playerColor: 1, moves: [],
+            startTime: null, endTime: null, lastMoveTime: null
         };
 
         function setDiff(d, el) {
@@ -350,6 +351,7 @@
             board = Array.from({ length: 8 }, () => Array(8).fill(0));
             board[3][3] = board[4][4] = 2;
             board[3][4] = board[4][3] = 1;
+            updateWinRateDisplay(50);
         }
 
         function startGame(playerColor) {
@@ -357,17 +359,10 @@
             ai = 3 - playerColor;
             turn = 1;
             gameOver = false;
-
-            // 初始化对局记录
             gameRecord = {
-                difficulty: searchDepth,
-                playerColor: playerColor,
-                moves: [],
-                startTime: Date.now(),
-                endTime: null,
-                lastMoveTime: Date.now()
+                difficulty: searchDepth, playerColor: playerColor, moves: [],
+                startTime: Date.now(), endTime: null, lastMoveTime: Date.now()
             };
-
             document.getElementById('menu').style.display = 'none';
             initBoard();
             draw();
@@ -413,7 +408,6 @@
                 }
             }
 
-            // ========== 记录走法 ==========
             if (recordMove && !gameOver) {
                 const currentTime = Date.now();
                 const thinkTime = currentTime - gameRecord.lastMoveTime;
@@ -426,25 +420,16 @@
                 }));
                 const bestScore = Math.max(...moveScores.map(m => m.score));
                 const currentScore = evaluate(nb, p);
-
-                // 找到最佳走法位置
                 const bestMoves = moveScores.filter(m => m.score === bestScore);
                 const isBestMove = bestMoves.some(m => m.pos.r === row && m.pos.c === col);
 
                 gameRecord.moves.push({
-                    player: p,
-                    position: { row, col },
-                    timestamp: currentTime - gameRecord.startTime,
-                    thinkTime: p === human ? thinkTime : 0,
-                    evaluation: currentScore,
-                    isBestMove: isBestMove,
-                    alternatives: allMoves.length,
-                    bestScore: bestScore,
-                    actualScore: currentScore,
-                    missedPoints: isBestMove ? 0 : bestScore - currentScore
+                    player: p, position: { row, col }, timestamp: currentTime - gameRecord.startTime,
+                    thinkTime: p === human ? thinkTime : 0, evaluation: currentScore,
+                    isBestMove: isBestMove, alternatives: allMoves.length, bestScore: bestScore,
+                    actualScore: currentScore, missedPoints: isBestMove ? 0 : bestScore - currentScore
                 });
             }
-
             return nb;
         }
 
@@ -457,6 +442,18 @@
                 }
             }
             return score * 10 + (getValidMoves(b, p).length - getValidMoves(b, opp).length) * 20;
+        }
+
+        function updateWinRateDisplay(rate) {
+            const el = document.getElementById('win-rate-value');
+            el.innerText = rate.toFixed(1) + "%";
+            el.style.color = rate > 50 ? "#64d2ff" : (rate < 50 ? "#ff4d4d" : "#ffffff");
+        }
+
+        function calculateWinRateFromScore(score, perspectivePlayer) {
+            let playerRelativeScore = perspectivePlayer === human ? score : -score;
+            const K = 400;
+            return (1 / (1 + Math.exp(-playerRelativeScore / K))) * 100;
         }
 
         function minimax(b, depth, alpha, beta, maximizing, p) {
@@ -487,12 +484,16 @@
         function aiMove() {
             if (gameOver) return;
             let res = minimax(board, searchDepth, -Infinity, Infinity, true, ai);
+            updateWinRateDisplay(calculateWinRateFromScore(res.score, ai));
             if (res.move) board = makeMove(board, res.move.r, res.move.c, ai, true);
             nextTurn();
         }
 
         function nextTurn() {
             turn = 3 - turn;
+            if (turn === human && !gameOver) {
+                updateWinRateDisplay(calculateWinRateFromScore(evaluate(board, human), human));
+            }
             if (getValidMoves(board, turn).length === 0) {
                 turn = 3 - turn;
                 if (getValidMoves(board, turn).length === 0) {
@@ -503,196 +504,91 @@
             draw();
         }
 
-        // ========== 对局评价系统 ==========
         async function evaluateGame(record) {
             const apiEndpoint = document.getElementById('api-endpoint').value.trim();
-
-            // 如果配置了API地址，尝试调用
             if (apiEndpoint) {
                 try {
                     const response = await fetch(apiEndpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            difficulty: record.difficulty,
-                            playerColor: record.playerColor,
-                            moves: record.moves,
-                            duration: record.endTime - record.startTime,
-                            finalScore: record.finalScore
-                        })
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ...record, duration: record.endTime - record.startTime })
                     });
-
-                    if (response.ok) {
-                        return await response.json();
-                    }
-                } catch (error) {
-                    console.error('API调用失败，使用本地评价:', error);
-                }
+                    if (response.ok) return await response.json();
+                } catch (e) { console.error("API失败，转本地评价", e); }
             }
-
-            // 降级到本地评价
             return getLocalEvaluation(record);
         }
 
+        // 严格恢复最初的评价逻辑
         function getLocalEvaluation(record) {
             const playerMoves = record.moves.filter(m => m.player === record.playerColor);
-            const aiMoves = record.moves.filter(m => m.player !== record.playerColor);
-
-            // 计算最佳手率
             const bestMoveCount = playerMoves.filter(m => m.isBestMove).length;
             const bestMoveRate = playerMoves.length > 0 ? bestMoveCount / playerMoves.length : 0;
-
-            // 计算平均思考时间(排除第一步)
             const thinkTimes = playerMoves.slice(1).map(m => m.thinkTime).filter(t => t > 0);
-            const avgThinkTime = thinkTimes.length > 0
-                ? thinkTimes.reduce((a, b) => a + b, 0) / thinkTimes.length
-                : 0;
+            const avgThinkTime = thinkTimes.length > 0 ? thinkTimes.reduce((a, b) => a + b, 0) / thinkTimes.length : 0;
 
-            // 计算关键失误(损失超过100分的走法)
             const criticalMistakes = playerMoves.filter(m => m.missedPoints > 100);
-
-            // 计算开局表现(前10步)
             const earlyMoves = playerMoves.slice(0, Math.min(10, playerMoves.length));
-            const earlyBestRate = earlyMoves.length > 0
-                ? earlyMoves.filter(m => m.isBestMove).length / earlyMoves.length
-                : 0;
+            const earlyBestRate = earlyMoves.length > 0 ? earlyMoves.filter(m => m.isBestMove).length / earlyMoves.length : 0;
 
-            // 评级系统
-            let rating = '初学者';
-            let ratingColor = '#ff9800';
+            let rating = '初学者'; let ratingColor = '#ff9800';
+            if (bestMoveRate >= 0.75) { rating = '大师级'; ratingColor = '#ffd700'; }
+            else if (bestMoveRate >= 0.60) { rating = '高手'; ratingColor = '#64d2ff'; }
+            else if (bestMoveRate >= 0.45) { rating = '进阶'; ratingColor = '#4caf50'; }
+            else if (bestMoveRate >= 0.30) { rating = '入门'; ratingColor = '#9c27b0'; }
 
-            if (bestMoveRate >= 0.75) {
-                rating = '大师级';
-                ratingColor = '#ffd700';
-            } else if (bestMoveRate >= 0.60) {
-                rating = '高手';
-                ratingColor = '#64d2ff';
-            } else if (bestMoveRate >= 0.45) {
-                rating = '进阶';
-                ratingColor = '#4caf50';
-            } else if (bestMoveRate >= 0.30) {
-                rating = '入门';
-                ratingColor = '#9c27b0';
-            }
-
-            // 生成建议
             const tips = [];
-
-            if (earlyBestRate < 0.4) {
-                tips.push('开局阶段应尽量控制中心区域');
-            }
-
-            if (criticalMistakes.length > 2) {
-                tips.push('发现' + criticalMistakes.length + '次关键失误，下棋前可以多思考几秒，评估各个位置的价值');
-            }
-
-            if (avgThinkTime < 2000 && bestMoveRate < 0.5) {
-                tips.push('适当增加思考时间可以提高决策质量，不要急于落子');
-            }
-
+            if (earlyBestRate < 0.4) tips.push('开局阶段应尽量控制中心区域');
+            if (criticalMistakes.length > 2) tips.push('发现' + criticalMistakes.length + '次关键失误，落子前建议多思考');
+            if (avgThinkTime < 2000 && bestMoveRate < 0.5) tips.push('适当增加思考时间可以提高决策质量');
             const playerScore = record.finalScore[record.playerColor === 1 ? 'black' : 'white'];
             const aiScore = record.finalScore[record.playerColor === 1 ? 'white' : 'black'];
-
-            if (playerScore < aiScore && bestMoveRate < 0.4) {
-                tips.push('尝试控制更多的可选位置（行动力），限制对手的选择空间');
-            }
-
-            if (tips.length === 0) {
-                if (bestMoveRate >= 0.7) {
-                    tips.push('表现优秀！可以尝试更高难度的挑战');
-                } else {
-                    tips.push('继续练习，注意观察每个位置的战略价值');
-                }
-            }
+            if (playerScore < aiScore && bestMoveRate < 0.4) tips.push('尝试控制更多的可选位置（行动力）');
+            if (tips.length === 0) tips.push('表现不错！注意观察角落的战略价值');
 
             return {
-                rating: rating,
-                ratingColor: ratingColor,
-                bestMoveRate: (bestMoveRate * 100).toFixed(1) + '%',
+                rating, ratingColor, bestMoveRate: (bestMoveRate * 100).toFixed(1) + '%',
                 avgThinkTime: (avgThinkTime / 1000).toFixed(1) + '秒',
-                totalMoves: playerMoves.length,
-                gameDuration: formatDuration(record.endTime - record.startTime),
-                tips: tips,
-                stats: {
-                    bestMoveCount: bestMoveCount,
-                    totalMoves: playerMoves.length,
-                    criticalMistakes: criticalMistakes.length,
-                    earlyBestRate: (earlyBestRate * 100).toFixed(0) + '%'
-                }
+                totalMoves: playerMoves.length, gameDuration: formatDuration(record.endTime - record.startTime), tips
             };
         }
 
         function formatDuration(ms) {
-            const seconds = Math.floor(ms / 1000);
-            const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = seconds % 60;
-            if (minutes > 0) {
-                return minutes + '分' + remainingSeconds + '秒';
-            }
-            return seconds + '秒';
+            const s = Math.floor(ms / 1000);
+            return s > 60 ? Math.floor(s / 60) + '分' + (s % 60) + '秒' : s + '秒';
         }
 
         async function showResult() {
             const b = board.flat().filter(x => x === 1).length;
             const w = board.flat().filter(x => x === 2).length;
-
             gameRecord.endTime = Date.now();
             gameRecord.finalScore = { black: b, white: w };
-
-            // 显示基础结果
             const resTitle = document.getElementById('res-title');
-            if (b === w) {
-                resTitle.innerText = "平局";
-                resTitle.style.color = "#fff";
-            } else if ((b > w && human === 1) || (w > b && human === 2)) {
-                resTitle.innerText = "胜利！";
-                resTitle.style.color = "#64d2ff";
-            } else {
-                resTitle.innerText = "失败";
-                resTitle.style.color = "#ff4d4d";
-            }
-
+            if (b === w) { resTitle.innerText = "平局"; resTitle.style.color = "#fff"; }
+            else if ((b > w && human === 1) || (w > b && human === 2)) { resTitle.innerText = "胜利！"; resTitle.style.color = "#64d2ff"; }
+            else { resTitle.innerText = "挑战失败"; resTitle.style.color = "#ff4d4d"; }
+            
             document.getElementById('res-score').innerText = `黑子 ${b} : 白子 ${w}`;
             document.getElementById('result-overlay').style.display = 'flex';
             document.getElementById('eval-loading').style.display = 'block';
             document.getElementById('eval-content').style.display = 'none';
 
-            // 异步获取评价
-            try {
-                const evaluation = await evaluateGame(gameRecord);
-                displayEvaluation(evaluation);
-            } catch (error) {
-                console.error('评价生成失败:', error);
-                document.getElementById('eval-loading').innerText = '评价生成失败';
-            }
+            const evaluation = await evaluateGame(gameRecord);
+            displayEvaluation(evaluation);
         }
 
         function displayEvaluation(evaluation) {
             document.getElementById('eval-loading').style.display = 'none';
             document.getElementById('eval-content').style.display = 'block';
-
-            // 设置评级徽章
-            const ratingBadge = document.getElementById('rating-badge');
-            ratingBadge.innerText = evaluation.rating;
-            if (evaluation.ratingColor) {
-                ratingBadge.style.background = evaluation.ratingColor;
-            }
-
-            // 设置各项数据
+            const badge = document.getElementById('rating-badge');
+            badge.innerText = evaluation.rating;
+            badge.style.background = evaluation.ratingColor;
             document.getElementById('best-move-rate').innerText = evaluation.bestMoveRate;
             document.getElementById('avg-think-time').innerText = evaluation.avgThinkTime;
             document.getElementById('total-moves').innerText = evaluation.totalMoves;
             document.getElementById('game-duration').innerText = evaluation.gameDuration;
-
-            // 显示建议
-            if (evaluation.tips && evaluation.tips.length > 0) {
+            if (evaluation.tips?.length > 0) {
                 document.getElementById('tips-box').style.display = 'block';
-                const tipsContent = document.getElementById('tips-content');
-                tipsContent.innerHTML = evaluation.tips.map(tip =>
-                    `<div class="tip-item">${tip}</div>`
-                ).join('');
-            } else {
-                document.getElementById('tips-box').style.display = 'none';
+                document.getElementById('tips-content').innerHTML = evaluation.tips.map(t => `<div class="tip-item">${t}</div>`).join('');
             }
         }
 
@@ -701,31 +597,20 @@
             let validMoves = getValidMoves(board, turn);
             for (let r = 0; r < 8; r++) {
                 for (let c = 0; c < 8; c++) {
-                    ctx.fillStyle = COLORS.BOARD;
-                    ctx.fillRect(c * G, r * G, G, G);
-                    ctx.strokeStyle = COLORS.GRID;
-                    ctx.strokeRect(c * G, r * G, G, G);
-                    let cx = c * G + G / 2, cy = r * G + G / 2, rad = G / 2 - 10;
+                    ctx.fillStyle = COLORS.BOARD; ctx.fillRect(c * G, r * G, G, G);
+                    ctx.strokeStyle = COLORS.GRID; ctx.strokeRect(c * G, r * G, G, G);
                     if (board[r][c] !== 0) {
-                        ctx.beginPath();
-                        ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+                        ctx.beginPath(); ctx.arc(c * G + G / 2, r * G + G / 2, G / 2 - 10, 0, Math.PI * 2);
                         ctx.fillStyle = board[r][c] === 1 ? COLORS.BLACK : COLORS.WHITE;
-                        ctx.shadowBlur = 10;
-                        ctx.shadowColor = "rgba(0,0,0,0.5)";
-                        ctx.fill();
-                        ctx.shadowBlur = 0;
+                        ctx.shadowBlur = 10; ctx.shadowColor = "rgba(0,0,0,0.5)"; ctx.fill(); ctx.shadowBlur = 0;
                     } else if (!gameOver && turn === human && validMoves.some(m => m.r === r && m.c === c)) {
-                        ctx.beginPath();
-                        ctx.arc(cx, cy, 6, 0, Math.PI * 2);
-                        ctx.fillStyle = COLORS.ACCENT;
-                        ctx.fill();
+                        ctx.beginPath(); ctx.arc(c * G + G / 2, r * G + G / 2, 6, 0, Math.PI * 2);
+                        ctx.fillStyle = COLORS.ACCENT; ctx.fill();
                     }
                 }
             }
-            let bCount = board.flat().filter(x => x === 1).length;
-            let wCount = board.flat().filter(x => x === 2).length;
-            document.getElementById('score').innerText = `黑: ${bCount} | 白: ${wCount}`;
-            document.getElementById('status').innerText = turn === human ? "轮到你了" : "AI 思考中 (深度:" + searchDepth + ")";
+            document.getElementById('score').innerText = `黑: ${board.flat().filter(x=>x===1).length} | 白: ${board.flat().filter(x=>x===2).length}`;
+            document.getElementById('status').innerText = turn === human ? "轮到你了" : "AI 思考中...";
         }
 
         canvas.addEventListener('mousedown', (e) => {
@@ -739,7 +624,6 @@
         });
     </script>
 </body>
-
 </html>
 
 </html>
